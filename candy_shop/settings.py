@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',
     'home',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -106,15 +107,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'candy_shop.wsgi.application'
 
 # ===============================
-# Database (Heroku Postgres via dj-database-url, fallback: sqlite)
+# Database (Postgres om DATABASE_URL finns; annars SQLite lokalt)
 # ===============================
-DATABASES = {
-    "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-        ssl_require=not DEBUG,
-    )
-}
+if "DATABASE_URL" in os.environ and os.environ["DATABASE_URL"]:
+    DATABASES = {
+        "default": dj_database_url.config(
+            conn_max_age=600,
+            ssl_require=True,  # endast för Postgres/extern DB
+        )
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # ===============================
 # Password validation

@@ -1,14 +1,25 @@
-env/
+# Python cache and compiled files
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Database
 db.sqlite3
+
+# Environment variables
+.env
+
+# Logs
 *.log
+
+# Editor/temp files
 *.pot
-*.pyc
 *.swp
 .DS_Store
-*.sqlite3
-*.py[cod]
+
+# Python packaging
 *.egg-info/
 *.egg
-.env
+
+# Virtual environment
+venv/
+.venv/
