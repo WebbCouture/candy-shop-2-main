@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Customer Reviews - Candy Shop{% endblock %}
+
+{% block content %}
+<main class="py-10">
+  <section style="max-width: 900px; margin: 0 auto; text-align: center; padding: 0 1.5rem;">
+    <h1 style="font-size: 3rem; color: #ff4d6d; font-weight: 700; margin-bottom: 1rem;">
+      Customer Reviews
+    </h1>
+    <p style="font-size: 1.2rem; color: #444; margin-bottom: 2rem;">
+      We’re all about sharing the sweetness. Here’s what our customers are saying about Candy Shop.
+    </p>
+
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 1rem;">
+      ⭐ Recent Highlights
+    </h2>
+    <ul style="text-align:left; display:inline-block; margin:0 auto 2rem; font-size:1rem; color:#555; line-height:1.6;">
+      <li style="margin-bottom:1rem;">
+        <strong>Alex P.</strong> — ★★★★★<br>
+        “Best gummies I’ve had in years! Fresh, chewy, and the sour ones are perfect.”
+      </li>
+      <li style="margin-bottom:1rem;">
+        <strong>Maya R.</strong> — ★★★★☆<br>
+        “The chocolate bundle was amazing. Shipping was fast and well packed.”
+      </li>
+      <li>
+        <strong>Jonas L.</strong> — ★★★★★<br>
+        “Peppermint bark is a 10/10. Ordered extra for gifts.”
+      </li>
+    </ul>
+
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 1rem;">
+      What Makes a Great Review?
+    </h2>
+    <ul style="text-align:left; display:inline-block; margin:0 auto 2rem; font-size:1rem; color:#555; line-height:1.6;">
+      <li>Your favorite product (and why)</li>
+      <li>Flavor/texture notes (crunchy, chewy, creamy)</li>
+      <li>Delivery/packaging experience</li>
+      <li>Photos (optional, but fun!)</li>
+    </ul>
+
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 1rem;">
+      Share Your Sweet Story
+    </h2>
+    <p style="font-size: 1rem; color: #555; line-height: 1.6; margin-bottom: 1.2rem;">
+      We’re not collecting reviews through the site yet, but we’d love to hear from you!  
+      Send your review via our <a href="{% url 'contact' %}" style="color:#ff4d6d; font-weight:600;">contact form</a> and we may feature it here.
+    </p>
+
+    <details style="margin-top:1.5rem; text-align:left; display:inline-block; font-size:1rem; color:#555;">
+      <summary style="cursor:pointer; font-weight:600; color:#ff4d6d;">Review Guidelines</summary>
+      <ul style="margin-top:0.5rem; line-height:1.6;">
+        <li>Be honest and specific (both pros and cons are welcome).</li>
+        <li>No personal info (addresses, phone numbers, order numbers).</li>
+        <li>Keep it friendly — we’re a candy store, after all 🍬</li>
+      </ul>
+    </details>
+  </section>
+</main>
+{% endblock %}

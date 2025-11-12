@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Purchase History - Candy Shop{% endblock %}
+
+{% block content %}
+  <div class="purchase-history-page">
+    <h1 style="text-align: center; color: #ff4d6d; font-weight: 700; margin-bottom: 2rem;">Your Purchase History</h1>
+
+    {% if orders %}
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <h2 style="font-size: 2rem; color: #444; margin-bottom: 1rem;">Past Orders</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Discount Applied</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+              <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.created_at|date:"F j, Y" }}</td>  <!-- Adjusted field and format -->
+                <td>${{ order.total_amount }}</td>  <!-- Assuming `total_amount` for price -->
+                <td>
+                  {% if order.discount %}
+                    <span style="color: green;">{{ order.discount }}% off</span>
+                  {% else %}
+                    No Discount
+                  {% endif %}
+                </td>
+                <td>{{ order.get_status_display }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p style="text-align: center; color: #555;">You haven't placed any orders yet.</p>
+    {% endif %}
+
+    <div style="text-align: center;">
+      {% if discount %}
+        <p style="color: green; font-size: 1.2rem;">You are eligible for a {{ discount }}% discount on your next purchase!</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

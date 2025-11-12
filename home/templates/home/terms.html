@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Terms & Conditions - Candy Shop{% endblock %}
+
+{% block content %}
+<main class="py-10">
+  <section style="max-width: 900px; margin: 0 auto; text-align: center; padding: 0 1.5rem;">
+    <h1 style="font-size: 3rem; color: #ff4d6d; font-weight: 700; margin-bottom: 1rem;">
+      Terms & Conditions
+    </h1>
+
+    <p style="font-size: 1.1rem; color: #444; line-height: 1.6; margin-bottom: 2rem;">
+      These Terms & Conditions apply to all purchases and use of the Candy Shop website.  
+      By accessing or ordering from our store, you agree to these terms.
+    </p>
+
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 1rem;">
+      1. General
+    </h2>
+    <p style="font-size: 1rem; color: #555; line-height: 1.6; margin-bottom: 1.5rem;">
+      We aim to provide accurate product descriptions and prices. However, we reserve the right to correct errors 
+      and update product information at any time without notice.
+    </p>
+
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 1rem;">
+      2. Orders
+    </h2>
+    <p style="font-size: 1rem; color: #555; line-height: 1.6; margin-bottom: 1.5rem;">
+      All orders are subject to acceptance and availability. We may refuse or cancel any order at our discretion.
+    </p>
+
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 1rem;">
+      3. Payment
+    </h2>
+    <p style="font-size: 1rem; color: #555; line-height: 1.6; margin-bottom: 1.5rem;">
+      We accept secure payments via Stripe. Payment must be completed before we process and ship your order.
+    </p>
+
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 1rem;">
+      4. Shipping & Returns
+    </h2>
+    <p style="font-size: 1rem; color: #555; line-height: 1.6; margin-bottom: 1.5rem;">
+      Delivery times are estimates and may vary. Please see our 
+      <a href="{% url 'shipping' %}" style="color: #ff4d6d; font-weight: 600; text-decoration: none;">
+        Shipping & Returns
+      </a> page for full details.
+    </p>
+
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 1rem;">
+      5. Liability
+    </h2>
+    <p style="font-size: 1rem; color: #555; line-height: 1.6; margin-bottom: 1.5rem;">
+      We are not responsible for delays or losses caused by events outside our control, 
+      including postal service issues or customs delays.
+    </p>
+
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 1rem;">
+      6. Changes to Terms
+    </h2>
+    <p style="font-size: 1rem; color: #555; line-height: 1.6;">
+      We may update these Terms & Conditions at any time. Continued use of our website means you accept the updated terms.
+    </p>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="cart-page cart-theme-dark" style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
+  <h1 class="cart-title" style="text-align: center;">🛒 Your Shopping Cart</h1>
+  <p class="cart-intro" style="text-align: center;">
+    Here’s a quick overview of the treats you’ve picked. You can adjust quantities, remove items, or head to checkout.
+    All candies are freshly packed just for you!
+  </p>
+
+  {% if items or cart %}
+    <div class="cart-grid">
+      <!-- Cart items -->
+      <ul class="cart-list" role="list">
+        {% if items %}
+          {% for it in items %}
+            <li class="cart-item">
+              <div class="item-info">
+                <span class="item-name">
+                  {{ it.name }}
+                  {% if it.is_gift %}<em class="text-sm text-rose-700"> (Gift Certificate)</em>{% endif %}
+                </span>
+                {% if it.description %}
+                  <p class="item-description">{{ it.description }}</p>
+                {% else %}
+                  <p class="item-description">Delicious and carefully selected sweets to brighten your day.</p>
+                {% endif %}
+
+                <div class="item-qty-controls">
+                  <form action="{% url 'cart_decrease' it.id %}" method="post" class="inline-form">
+                    {% csrf_token %}
+                    <button class="qty-btn" title="Decrease" aria-label="Decrease">−</button>
+                  </form>
+
+                  <span class="qty" aria-live="polite">{{ it.quantity }}</span>
+
+                  <form action="{% url 'cart_increase' it.id %}" method="post" class="inline-form">
+                    {% csrf_token %}
+                    <button class="qty-btn" title="Increase" aria-label="Increase">＋</button>
+                  </form>
+
+                  <form action="{% url 'cart_delete' it.id %}" method="post" class="inline-form">
+                    {% csrf_token %}
+                    <button class="delete-btn" title="Remove" aria-label="Remove">✕</button>
+                  </form>
+                </div>
+              </div>
+
+              <div class="item-pricing">
+                <span class="item-unit">Unit: {{ currency }} {{ it.unit_price|floatformat:2 }}</span>
+                <span class="item-line">Line: {{ currency }} {{ it.line_total|floatformat:2 }}</span>
+              </div>
+            </li>
+          {% endfor %}
+        {% else %}
+          {% for product_id, item in cart.items %}
+            <li class="cart-item">
+              <div class="item-info">
+                <span class="item-name">{{ item.name }}</span>
+                {% if item.description %}
+                  <p class="item-description">{{ item.description }}</p>
+                {% else %}
+                  <p class="item-description">Delicious and carefully selected sweets to brighten your day.</p>
+                {% endif %}
+
+                <div class="item-qty-controls">
+                  <form action="{% url 'cart_decrease' product_id %}" method="post" class="inline-form">
+                    {% csrf_token %}
+                    <button class="qty-btn" title="Decrease" aria-label="Decrease">−</button>
+                  </form>
+
+                  <span class="qty" aria-live="polite">{{ item.quantity }}</span>
+
+                  <form action="{% url 'cart_increase' product_id %}" method="post" class="inline-form">
+                    {% csrf_token %}
+                    <button class="qty-btn" title="Increase" aria-label="Increase">＋</button>
+                  </form>
+
+                  <form action="{% url 'cart_delete' product_id %}" method="post" class="inline-form">
+                    {% csrf_token %}
+                    <button class="delete-btn" title="Remove" aria-label="Remove">✕</button>
+                  </form>
+                </div>
+              </div>
+            </li>
+          {% endfor %}
+        {% endif %}
+      </ul>
+
+      <!-- Summary -->
+      <aside class="cart-summary" aria-labelledby="summary-title" style="text-align: center;">
+        <h2 id="summary-title">Order Summary</h2>
+        <p class="summary-text">Review your order before you proceed to checkout. We promise a smooth and secure payment process.</p>
+
+        {% if items %}
+          <p class="summary-line"><span>Subtotal</span><span>{{ currency }} {{ subtotal|floatformat:2 }}</span></p>
+          <p class="summary-line"><span>Shipping</span><span>{{ currency }} {{ shipping|floatformat:2 }}</span></p>
+          <hr />
+          <p class="summary-line summary-total">
+            <span>Total</span>
+            <span><strong>{{ currency }} {{ total|floatformat:2 }}</strong></span>
+          </p>
+        {% else %}
+          <p class="summary-line"><span>Total Items</span><span>{{ cart|length }}</span></p>
+        {% endif %}
+
+        <form action="{% url 'create_checkout_session' %}" method="POST" class="checkout-form">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary btn-pay-card">💳 Pay with Card</button>
+        </form>
+
+        <p class="summary-note">Shipping calculated at checkout. Free shipping on orders over $50.</p>
+      </aside>
+    </div>
+
+    <!-- Display Past Orders -->
+    <div class="purchase-history">
+      <h2>Your Purchase History</h2>
+      {% if orders %}
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+              <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.created_at|date:"F j, Y" }}</td>
+                <td>${{ order.total }}</td>
+                <td>{{ order.get_status_display }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>No past orders found.</p>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <div class="empty-cart" style="text-align: center;">
+      <div class="empty-emoji" aria-hidden="true">🧺</div>
+      <h2>Your cart is empty</h2>
+      <p>Looks like you haven’t added anything yet. Why not browse our delicious collection?</p>
+      <!-- Removed Browse Candies button -->
+    </div>
+  {% endif %}
+</section>
+
+<style>
+.cart-item { display:flex; justify-content:space-between; gap:1rem; }
+.item-pricing { display:flex; flex-direction:column; text-align:right; min-width: 165px; font-weight:600; }
+.item-unit, .item-line { color:#7f1d30; }
+.summary-line { display:flex; justify-content:space-between; margin:.35rem 0; }
+.summary-total { font-size:1.1rem; }
+
+.inline-form { display:inline; margin:0 .25rem; }
+.item-qty-controls { display:flex; align-items:center; gap:.25rem; margin-top:.35rem; flex-wrap: wrap; }
+.qty-btn, .delete-btn {
+  border: none; cursor: pointer; padding:.25rem .5rem; border-radius:6px;
+  font-weight:700; line-height:1; background:#ffb3c6; color:#7f1d30;
+}
+.qty-btn:hover { background:#ff7b94; }
+.delete-btn { background:#ffd6db; color:#7f1d30; }
+.delete-btn:hover { background:#ffb3c6; }
+.qty { min-width: 1.5rem; text-align:center; font-weight:700; }
+
+.purchase-history { margin-top: 2rem; padding: 1rem; background-color: #f9f9f9; border-radius: 8px; }
+.purchase-history table { width: 100%; border-collapse: collapse; }
+.purchase-history th, .purchase-history td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; }
+.purchase-history th { background-color: #f2f2f2; }
+</style>
+{% endblock %}

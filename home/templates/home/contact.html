@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<main class="py-10">
+  <section class="contact-section" style="max-width: 900px; margin: 0 auto; text-align: center; padding: 0 1.5rem;">
+
+    <h1 style="font-size: 3rem; color: #ff4d6d; font-weight: 700; margin-bottom: 1rem;">Contact Us</h1>
+    <p style="font-size: 1.2rem; color: #444; margin-bottom: 2rem;">
+      Got a question or just want to say hi? Reach out — we’d love to hear from you!
+    </p>
+
+    <!-- Contact Details -->
+    <div style="font-size: 1rem; color: #555; line-height: 1.8; margin-bottom: 3rem;">
+      <p>📧 <strong>Email:</strong> <a href="mailto:info@candyshop.com" style="color: #ff4d6d; text-decoration: underline;">info@candyshop.com</a></p>
+      <p>📞 <strong>Phone:</strong> <a href="tel:+1234567890" style="color: #ff4d6d; text-decoration: underline;">+1 (234) 567-890</a></p>
+      <p>📍 <strong>Visit us at:</strong> 123 Sweet Street, Los Angeles, CA 90015</p>
+    </div>
+
+    <!-- Opening Hours -->
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 1rem;">Opening Hours</h2>
+    <p style="font-size: 1rem; color: #555; line-height: 1.6; margin-bottom: 2rem;">
+      Monday – Friday: 10am – 7pm<br>
+      Saturday: 10am – 6pm<br>
+      Sunday: Closed 🍬
+    </p>
+
+    <!-- Contact Form -->
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-top: 3rem; margin-bottom: 1rem;">Send Us a Message</h2>
+
+    {% if messages %}
+      {% for message in messages %}
+        <p style="color: green; font-weight: 600; margin-bottom: 1rem;">{{ message }}</p>
+      {% endfor %}
+    {% endif %}
+
+    <form action="" method="POST" style="max-width: 600px; margin: 0 auto; text-align: left;">
+      {% csrf_token %}
+      <div style="margin-bottom: 1rem;">
+        {{ form.name.label_tag }}<br>
+        {{ form.name }}
+        {% if form.name.errors %}
+          <p style="color: red;">{{ form.name.errors.0 }}</p>
+        {% endif %}
+      </div>
+      <div style="margin-bottom: 1rem;">
+        {{ form.email.label_tag }}<br>
+        {{ form.email }}
+        {% if form.email.errors %}
+          <p style="color: red;">{{ form.email.errors.0 }}</p>
+        {% endif %}
+      </div>
+      <!-- ✅ Subject field added below -->
+      <div style="margin-bottom: 1rem;">
+        {{ form.subject.label_tag }}<br>
+        {{ form.subject }}
+        {% if form.subject.errors %}
+          <p style="color: red;">{{ form.subject.errors.0 }}</p>
+        {% endif %}
+      </div>
+      <div style="margin-bottom: 1rem;">
+        {{ form.message.label_tag }}<br>
+        {{ form.message }}
+        {% if form.message.errors %}
+          <p style="color: red;">{{ form.message.errors.0 }}</p>
+        {% endif %}
+      </div>
+      <button type="submit" class="btn-primary" style="margin-top: 1rem;">Send Message</button>
+    </form>
+
+    <!-- Google Map -->
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-top: 4rem; margin-bottom: 1rem;">Find Us Here</h2>
+    <div style="border-radius: 20px; overflow: hidden; box-shadow: 0 4px 25px rgba(255, 77, 109, 0.15); margin-bottom: 2rem;">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3303.9638485524035!2d-118.27305962435135!3d34.03343062089178!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c74c9c28a79f%3A0x1c4e22dd6e07df4a!2s123%20S%20Main%20St%2C%20Los%20Angeles%2C%20CA%2090012!5e0!3m2!1sen!2sus!4v1722500000000!5m2!1sen!2sus"
+        width="100%" height="350" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </section>
+</main>
+{% endblock %}

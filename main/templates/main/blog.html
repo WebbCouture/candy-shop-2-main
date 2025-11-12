@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Blog - Candy Shop{% endblock %}
+
+{% block content %}
+<main class="py-10">
+  <section style="max-width: 900px; margin: 0 auto; text-align: center; padding: 0 1.5rem;">
+    <h1 style="font-size: 3rem; color: #ff4d6d; font-weight: 700; margin-bottom: 1rem;">
+      Candy Shop Blog
+    </h1>
+    <p style="font-size: 1.2rem; color: #444; margin-bottom: 2rem;">
+      News, tips, and behind-the-scenes from our kitchen. Grab a treat and enjoy!
+    </p>
+
+    <!-- Post 1 -->
+    <article style="margin-bottom: 2.5rem; display: inline-block; text-align: center; max-width: 800px; width: 100%;">
+      <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 0.5rem;">
+        🍭 The Art of Hand-Poured Lollipops
+      </h2>
+      <p style="font-size: 0.95rem; color: #888; margin-bottom: 1rem;">
+        Published: Aug 1, 2025 • 4 min read
+      </p>
+      <p style="font-size: 1rem; color: #555; line-height: 1.6; margin-bottom: 1rem;">
+        Our rainbow lollipops start with premium cane sugar and real fruit flavors.
+        Each batch is poured by hand, which means no two lollies are exactly alike.
+        That uniqueness is our signature — a tiny edible work of art.
+      </p>
+      <ul style="display: inline-block; text-align: left; line-height: 1.6; font-size: 1rem; color: #555; margin: 0 auto 1rem;">
+        <li>Natural flavors where possible</li>
+        <li>Small-batch pouring for consistency</li>
+        <li>Slow-cool for shine and snap</li>
+      </ul>
+    </article>
+
+    <!-- Post 2 -->
+    <article style="margin-bottom: 2.5rem; display: inline-block; text-align: center; max-width: 800px; width: 100%;">
+      <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 0.5rem;">
+        🍫 Choosing the Right Chocolate
+      </h2>
+      <p style="font-size: 0.95rem; color: #888; margin-bottom: 1rem;">
+        Published: Jul 20, 2025 • 3 min read
+      </p>
+      <p style="font-size: 1rem; color: #555; line-height: 1.6; margin-bottom: 1rem;">
+        Cocoa percentage isn’t everything. For truffles, we prioritize smooth melt
+        and balanced bitterness. For bark and bars, we layer crunchy add-ins for contrast.
+      </p>
+      <blockquote style="display: inline-block; text-align: left; font-style: italic; color: #666; border-left: 4px solid #ff4d6d; padding-left: 1rem; margin: 1rem auto;">
+        Tip: Store chocolate in a cool, dry place (15–18°C). Avoid the fridge unless it’s a heatwave.
+      </blockquote>
+    </article>
+
+    <!-- Post 3 -->
+    <article style="margin-bottom: 2.5rem; display: inline-block; text-align: center; max-width: 800px; width: 100%;">
+      <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 0.5rem;">
+        🎉 Seasonal Drops You Won’t Want to Miss
+      </h2>
+      <p style="font-size: 0.95rem; color: #888; margin-bottom: 1rem;">
+        Published: Jun 28, 2025 • 2 min read
+      </p>
+      <ul style="display: inline-block; text-align: left; line-height: 1.6; font-size: 1rem; color: #555; margin: 0 auto 1rem;">
+        <li>Spring: Pastel marshmallows & strawberry creams</li>
+        <li>Summer: Tropical sour mix (pineapple, mango, passionfruit)</li>
+        <li>Autumn: Pumpkin spice caramels</li>
+        <li>Winter: Peppermint bark & hot cocoa toppers</li>
+      </ul>
+    </article>
+
+    <hr style="margin: 2rem auto; width: 80%; max-width: 700px;">
+
+    <h2 style="font-size: 2rem; color: #ff7a8a; font-weight: 600; margin-bottom: 1rem;">
+      Got a topic you want us to cover?
+    </h2>
+    <p style="font-size: 1rem; color: #555; line-height: 1.6;">
+      Send ideas via the <a href="{% url 'contact' %}" style="color:#ff4d6d; font-weight:600;">contact form</a> —
+      recipe requests, candy science, gift guides, you name it.
+    </p>
+  </section>
+</main>
+{% endblock %}
