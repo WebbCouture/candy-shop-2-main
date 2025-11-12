@@ -1,54 +1,46 @@
 import os
 from pathlib import Path
-from django.contrib.messages import constants as messages  # for message tags
-import dj_database_url  # for Heroku Postgres support
+from django.contrib.messages import constants as messages
+import dj_database_url
+from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ---- Load .env (handles your BOM/UTF-16 case) ----
-from dotenv import load_dotenv
-# Try standard UTF-8 first (don’t crash if encoding is wrong)
+# Load .env (handles UTF-8/UTF-16 cases)
 try:
     load_dotenv(BASE_DIR / ".env")
 except Exception:
     pass
-# Fallback for .env saved as UTF-16 or with BOM (prevents UnicodeDecodeError)
+
 if not os.getenv("STRIPE_SECRET_KEY") or not os.getenv("STRIPE_PUBLIC_KEY"):
     try:
         load_dotenv(BASE_DIR / ".env", encoding="utf-16")
     except Exception:
         pass
-# ---------------------------------------------------
 
-# Quick-start development settings - unsuitable for production
+# -------------------------------
+# SECURITY SETTINGS
+# -------------------------------
 SECRET_KEY = os.environ.get(
     'DJANGO_SECRET_KEY',
-    'django-insecure-wxs3%36rv84(791g@%v-+o8lt6w_n*6hy(jdbver@ft0(_0b)c'
+    'unsafe-secret-key-for-dev'
 )
 
-
-DEBUG = False  # Change this to True for local dev if needed
-
-
-if "DJANGO_DEBUG" in os.environ:
-    DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
-
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [
-    'candyshop-demo-bf556706b864.herokuapp.com',  # Heroku domain
-    'localhost',  # Local development
-    '127.0.0.1'   # Localhost IP
+    os.environ.get('ALLOWED_HOSTS', 'localhost'),
 ]
 
-# Trust these origins for CSRF (needed for password reset and other POST forms)
 CSRF_TRUSTED_ORIGINS = [
-    'https://candyshop-demo-bf556706b864.herokuapp.com',
-    'http://localhost',
-    'http://127.0.0.1',
+    f"https://{os.environ.get('ALLOWED_HOSTS', 'localhost')}",
+    "http://localhost",
 ]
 
-# Application definition
+# -------------------------------
+# Applications
+# -------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -57,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
-    'home',  
+    'home',
 ]
 
 MIDDLEWARE = [
@@ -76,7 +68,7 @@ ROOT_URLCONF = 'candy_shop.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'candy_shop' / 'templates'], 
+        'DIRS': [BASE_DIR / 'candy_shop' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -91,7 +83,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'candy_shop.wsgi.application'
 
-# Database configuration (use Heroku Postgres or SQLite depending on the environment)
+# -------------------------------
+# Database
+# -------------------------------
 if 'DATABASE_URL' in os.environ:
     DATABASES = {
         'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
@@ -104,7 +98,9 @@ else:
         }
     }
 
+# -------------------------------
 # Password validation
+# -------------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -112,25 +108,25 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# -------------------------------
 # Internationalization
+# -------------------------------
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# -------------------------------
+# Static files
+# -------------------------------
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'candy_shop' / 'static'] 
-STATIC_ROOT = BASE_DIR / 'staticfiles'  
-
-# Use WhiteNoise to serve static files in production
+STATICFILES_DIRS = [BASE_DIR / 'candy_shop' / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
-# Messages framework tags for bootstrap compatibility
+# -------------------------------
+# Messages tags
+# -------------------------------
 MESSAGE_TAGS = {
     messages.DEBUG: 'debug',
     messages.INFO: 'info',
@@ -139,25 +135,26 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# --- Email backend for development ---
+# -------------------------------
+# Email
+# -------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'webmaster@localhost'
 
-# Login URLs (use names instead of hardcoded paths to avoid typos)
-LOGIN_URL = 'login'                # was '/account/login/' — fixed
-LOGIN_REDIRECT_URL = 'home'        # redirect after login
-LOGOUT_REDIRECT_URL = 'home'       # redirect after logout
+# -------------------------------
+# Auth URLs
+# -------------------------------
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
 
-# ============================
-# Stripe / payments (added)
-# ============================
+# -------------------------------
+# Stripe
+# -------------------------------
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY", "")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
-STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "") 
-STRIPE_CURRENCY = os.getenv("STRIPE_CURRENCY", "usd")  
-DOMAIN = os.getenv("DOMAIN", "http://127.0.0.1:8000")  
-
-
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+STRIPE_CURRENCY = os.getenv("STRIPE_CURRENCY", "usd")
+DOMAIN = os.getenv("DOMAIN", "http://127.0.0.1:8000")
