@@ -4,10 +4,12 @@ from django.contrib.messages import constants as messages
 import dj_database_url
 from dotenv import load_dotenv
 
-# Build paths
+# -------------------------------
+# Build paths inside the project
+# -------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env (handles UTF-8/UTF-16 cases)
+# Load .env (UTF-8 / UTF-16 fallback)
 try:
     load_dotenv(BASE_DIR / ".env")
 except Exception:
@@ -22,21 +24,20 @@ if not os.getenv("STRIPE_SECRET_KEY") or not os.getenv("STRIPE_PUBLIC_KEY"):
 # -------------------------------
 # SECURITY SETTINGS
 # -------------------------------
-SECRET_KEY = os.environ.get(
-    'DJANGO_SECRET_KEY',
-    'unsafe-secret-key-for-dev'
-)
-
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-dev-key')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = [
-    os.environ.get('ALLOWED_HOSTS', 'localhost'),
-]
+# ALLOWED_HOSTS from Heroku Config Vars (comma-separated)
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS]
 
-CSRF_TRUSTED_ORIGINS = [
-    f"https://{os.environ.get('ALLOWED_HOSTS', 'localhost')}",
-    "http://localhost",
-]
+# CSRF trusted origins built from ALLOWED_HOSTS
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host != "localhost"]
+
+# Optional SSL settings for production on Heroku
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # -------------------------------
 # Applications
@@ -153,8 +154,8 @@ LOGOUT_REDIRECT_URL = 'home'
 # -------------------------------
 # Stripe
 # -------------------------------
-STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY", "")
-STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
-STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
-STRIPE_CURRENCY = os.getenv("STRIPE_CURRENCY", "usd")
-DOMAIN = os.getenv("DOMAIN", "http://127.0.0.1:8000")
+STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY", "")
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")  # leave empty if not used
+STRIPE_CURRENCY = os.environ.get("STRIPE_CURRENCY", "usd")
+DOMAIN = os.environ.get("DOMAIN", "https://candy-shop-2-main-47a1afb34434.herokuapp.com")
