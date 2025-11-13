@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 # ===============================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Ladda .env (UTF-8 först, fallback UTF-16 om nycklarna saknas)
+# Load .env (UTF-8 first, fallback to UTF-16 if keys are missing)
 try:
     load_dotenv(BASE_DIR / ".env")
 except Exception:
@@ -27,15 +27,15 @@ if not os.getenv("STRIPE_SECRET_KEY") or not os.getenv("STRIPE_PUBLIC_KEY"):
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-dev-key')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
-# Tillåtna värdar (kommaseparerade i env). Bra defaults lokalt.
+# Allowed hosts (comma-separated in env). Good defaults for local dev.
 ALLOWED_HOSTS = [
     h.strip() for h in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
     if h.strip()
 ]
 
 # CSRF Trusted Origins:
-# - Om CSRF_TRUSTED_ORIGINS anges i env, använd den.
-# - Annars: vettiga lokala defaults + herokuapp-hosts från ALLOWED_HOSTS.
+# - If CSRF_TRUSTED_ORIGINS is set in env, use it.
+# - Otherwise: sensible local defaults + herokuapp hosts from ALLOWED_HOSTS.
 _csrf_from_env = [
     u.strip() for u in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
     if u.strip()
@@ -47,15 +47,15 @@ CSRF_TRUSTED_ORIGINS = _csrf_from_env or [
     "http://127.0.0.1:8000",
 ] + [f"https://{h}" for h in ALLOWED_HOSTS if h.endswith("herokuapp.com")]
 
-# Tvinga HTTPS endast i produktion (Heroku)
+# Enforce HTTPS only in production (Heroku)
 SECURE_SSL_REDIRECT = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
-# Bakom Heroku proxy
+# Behind Heroku proxy
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-# HSTS kan aktiveras när allt funkar i prod:
+# HSTS can be enabled once everything works in production:
 # SECURE_HSTS_SECONDS = 31536000
 # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 # SECURE_HSTS_PRELOAD = True
@@ -77,7 +77,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',   # Viktig för statiska filer på Heroku
+    'whitenoise.middleware.WhiteNoiseMiddleware',   # Important for static files on Heroku
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -107,13 +107,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'candy_shop.wsgi.application'
 
 # ===============================
-# Database (Postgres om DATABASE_URL finns; annars SQLite lokalt)
+# Database (Postgres if DATABASE_URL exists; otherwise SQLite locally)
 # ===============================
 if "DATABASE_URL" in os.environ and os.environ["DATABASE_URL"]:
     DATABASES = {
         "default": dj_database_url.config(
             conn_max_age=600,
-            ssl_require=True,  # endast för Postgres/extern DB
+            ssl_require=True,  # only for external/Postgres DB
         )
     }
 else:
@@ -137,7 +137,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ===============================
 # Internationalization
 # ===============================
-LANGUAGE_CODE = 'sv-se'
+LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Europe/Stockholm'
 USE_I18N = True
 USE_TZ = True
@@ -184,6 +184,6 @@ LOGOUT_REDIRECT_URL = 'home'
 # ===============================
 STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY", "")
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
-STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")  # lämna tom om ej används
-STRIPE_CURRENCY = os.environ.get("STRIPE_CURRENCY", "sek")  # byt till "usd" om du vill
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")  # leave empty if not used
+STRIPE_CURRENCY = os.environ.get("STRIPE_CURRENCY", "usd")  # match your $ display
 DOMAIN = os.environ.get("DOMAIN", "https://candy-shop-2-main-47a1afb34434.herokuapp.com")

@@ -199,16 +199,33 @@
   </style>
 
   <script>
-    document.getElementById("show-register").addEventListener("click", function(e){
-      e.preventDefault();
-      document.getElementById("login-form").style.display = "none";
-      document.getElementById("signup-form").style.display = "block";
-    });
+    document.addEventListener("DOMContentLoaded", function () {
+      // Server-side bestämt vilken flik som ska vara aktiv (login/signup)
+      const activeTab = "{{ active_tab|default:'login' }}";
 
-    document.getElementById("show-login").addEventListener("click", function(e){
-      e.preventDefault();
-      document.getElementById("signup-form").style.display = "none";
-      document.getElementById("login-form").style.display = "block";
+      const loginForm = document.getElementById("login-form");
+      const signupForm = document.getElementById("signup-form");
+
+      if (activeTab === "signup") {
+        loginForm.style.display = "none";
+        signupForm.style.display = "block";
+      } else {
+        loginForm.style.display = "block";
+        signupForm.style.display = "none";
+      }
+
+      // Klick: växla manuellt mellan login/signup
+      document.getElementById("show-register").addEventListener("click", function(e){
+        e.preventDefault();
+        loginForm.style.display = "none";
+        signupForm.style.display = "block";
+      });
+
+      document.getElementById("show-login").addEventListener("click", function(e){
+        e.preventDefault();
+        signupForm.style.display = "none";
+        loginForm.style.display = "block";
+      });
     });
   </script>
 

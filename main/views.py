@@ -422,8 +422,11 @@ def logout_view(request):
     return redirect('account')
 
 
+
+# --- Account View (Login, Register, Dashboard) ---
 # --- Account View (Login, Register, Dashboard) ---
 def account(request):
+    # If user is logged in → show dashboard
     if request.user.is_authenticated:
         orders = Order.objects.filter(user=request.user).prefetch_related('items__product')
         return render(request, 'registration/account.html', {
@@ -434,7 +437,12 @@ def account(request):
     login_form = AuthenticationForm()
     signup_form = RegistrationForm()
 
+    # Handle POST
     if request.method == 'POST':
+
+        # ------------------------
+        # LOGIN
+        # ------------------------
         if 'login' in request.POST:
             login_form = AuthenticationForm(request, data=request.POST)
             if login_form.is_valid():
@@ -443,8 +451,17 @@ def account(request):
                 messages.success(request, "Login successful!")
                 return redirect('account')
             else:
-                messages.error(request, "Invalid credentials, please try again.")
+                # No need to add messages.error – form shows the errors itself
+                return render(request, 'registration/account.html', {
+                    'login_form': login_form,
+                    'signup_form': RegistrationForm(),
+                    'dashboard': False,
+                    'active_tab': 'login',
+                })
 
+        # ------------------------
+        # SIGNUP
+        # ------------------------
         elif 'signup' in request.POST:
             signup_form = RegistrationForm(request.POST)
             if signup_form.is_valid():
@@ -453,12 +470,20 @@ def account(request):
                 messages.success(request, "Registration successful! You are now logged in.")
                 return redirect('account')
             else:
-                messages.error(request, "There were errors in the registration form.")
+                # IMPORTANT: show signup tab with errors
+                return render(request, 'registration/account.html', {
+                    'login_form': AuthenticationForm(),
+                    'signup_form': signup_form,
+                    'dashboard': False,
+                    'active_tab': 'signup',
+                })
 
+    # Initial GET
     return render(request, 'registration/account.html', {
         'login_form': login_form,
         'signup_form': signup_form,
-        'dashboard': False
+        'dashboard': False,
+        'active_tab': 'login',
     })
 
 

@@ -23,3 +23,7 @@ db.sqlite3
 # Virtual environment
 venv/
 .venv/
+
+cert.crt
+cert.key
+*.pem
