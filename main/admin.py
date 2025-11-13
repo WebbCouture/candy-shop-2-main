@@ -1,5 +1,19 @@
 from django.contrib import admin
-from .models import Coupon, Cart, CartItem, GiftCertificate
+from .models import (
+    Product,
+    Coupon,
+    Cart,
+    CartItem,
+    GiftCertificate,
+    Order,
+    OrderItem,
+)
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ("name", "price")
+    search_fields = ("name",)
 
 
 @admin.register(GiftCertificate)
@@ -30,3 +44,17 @@ class CartItemAdmin(admin.ModelAdmin):
     list_display = ("cart", "product", "quantity", "total_price")
     search_fields = ("cart__user__username", "product__name")
     readonly_fields = ("cart", "product", "quantity", "total_price")
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "date", "total", "coupon", "discount_amount")
+    list_filter = ("date", "coupon")
+    search_fields = ("user__username",)
+    readonly_fields = ("date", "total", "discount_amount")
+
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ("order", "product", "quantity", "price", "line_total")
+    search_fields = ("order__user__username", "product__name")
