@@ -1,3 +1,5 @@
+console.log("Candy Shop JS laddat ✅");
+
 // main.js
 
 document.addEventListener('DOMContentLoaded', () => {
