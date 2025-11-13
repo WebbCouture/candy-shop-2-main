@@ -1,0 +1,202 @@
+[
+{
+    "model": "main.product",
+    "pk": 1,
+    "fields": {
+        "name": "Sour Rainbow Strips",
+        "description": "Colorful sour fruit strips with a perfect balance of sweet and tangy.",
+        "price": "2.99",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Sour+Rainbow+Strips"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 2,
+    "fields": {
+        "name": "Fizzy Cola Bottles",
+        "description": "Classic cola-flavoured gummies with a fizzy sugar coating.",
+        "price": "1.99",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Fizzy+Cola+Bottles"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 3,
+    "fields": {
+        "name": "Strawberry Hearts",
+        "description": "Soft strawberry jelly hearts, sweet and irresistible.",
+        "price": "2.49",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Strawberry+Hearts"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 4,
+    "fields": {
+        "name": "Gummy Bears Mix",
+        "description": "A colourful mix of classic gummy bears in fruity flavours.",
+        "price": "2.79",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Gummy+Bears+Mix"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 5,
+    "fields": {
+        "name": "Chocolate Caramel Squares",
+        "description": "Rich milk chocolate filled with soft, buttery caramel.",
+        "price": "3.49",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Chocolate+Caramel+Squares"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 6,
+    "fields": {
+        "name": "Cotton Candy Clouds",
+        "description": "Fluffy, melt-in-your-mouth cotton candy flavour chews.",
+        "price": "2.29",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Cotton+Candy+Clouds"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 7,
+    "fields": {
+        "name": "Lemon Drops",
+        "description": "Sharp and zesty lemon hard candies with a sugary finish.",
+        "price": "1.89",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Lemon+Drops"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 8,
+    "fields": {
+        "name": "Raspberry Laces",
+        "description": "Long, chewy raspberry strings that are fun to eat and share.",
+        "price": "2.19",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Raspberry+Laces"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 9,
+    "fields": {
+        "name": "Bubblegum Balls",
+        "description": "Crunchy on the outside, chewy bubblegum on the inside.",
+        "price": "1.49",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Bubblegum+Balls"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 10,
+    "fields": {
+        "name": "Licorice Twists",
+        "description": "Classic black licorice twists for true licorice lovers.",
+        "price": "2.39",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Licorice+Twists"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 11,
+    "fields": {
+        "name": "Marshmallow Swirls",
+        "description": "Soft marshmallows with colourful swirls and vanilla flavour.",
+        "price": "2.59",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Marshmallow+Swirls"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 12,
+    "fields": {
+        "name": "Toffee Crunch Bars",
+        "description": "Chewy toffee with crunchy bits dipped in milk chocolate.",
+        "price": "3.29",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Toffee+Crunch+Bars"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 13,
+    "fields": {
+        "name": "Apple Rings",
+        "description": "Green apple jelly rings with a sour sugar dusting.",
+        "price": "2.09",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Apple+Rings"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 14,
+    "fields": {
+        "name": "Blueberry Blast Gummies",
+        "description": "Juicy blueberry gummies with an intense berry flavour.",
+        "price": "2.69",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Blueberry+Blast+Gummies"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 15,
+    "fields": {
+        "name": "Watermelon Slices",
+        "description": "Fruity watermelon slices with a sour kick.",
+        "price": "2.49",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Watermelon+Slices"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 16,
+    "fields": {
+        "name": "Tropical Fruit Chews",
+        "description": "Soft chews in mango, pineapple, and passion fruit flavours.",
+        "price": "2.99",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Tropical+Fruit+Chews"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 17,
+    "fields": {
+        "name": "Sour Cherry Skulls",
+        "description": "Spooky cherry-flavoured sour gummies shaped like skulls.",
+        "price": "2.59",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Sour+Cherry+Skulls"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 18,
+    "fields": {
+        "name": "Vanilla Fudge Cubes",
+        "description": "Creamy vanilla fudge cut into bite-sized cubes.",
+        "price": "3.19",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Vanilla+Fudge+Cubes"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 19,
+    "fields": {
+        "name": "Peanut Crunch Clusters",
+        "description": "Roasted peanuts bound together in sweet caramel and chocolate.",
+        "price": "3.59",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Peanut+Crunch+Clusters"
+    }
+},
+{
+    "model": "main.product",
+    "pk": 20,
+    "fields": {
+        "name": "Candy Shop Mix Bag",
+        "description": "A surprise mix of our favourite candies in one colourful bag.",
+        "price": "4.49",
+        "image_url": "https://via.placeholder.com/400x400.png?text=Candy+Shop+Mix+Bag"
+    }
+}
+]
