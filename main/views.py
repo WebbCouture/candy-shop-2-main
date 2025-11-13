@@ -7,9 +7,8 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
-
 from .forms import RegistrationForm
-from .models import Product, Order, GiftCertificate, Coupon
+from .models import Product, Order, GiftCertificate, Coupon, OrderItem
 
 from decimal import Decimal, ROUND_HALF_UP
 import time
@@ -151,15 +150,61 @@ def cart_view(request):
     """
     # Handle Stripe return flags
     if request.GET.get('success') == '1':
-        # record coupon use, if any (Option A - quick win)
+        # record coupon use, if any + find Coupon object
         promo = request.session.pop('promo', None)
+        coupon_obj = None
         if promo:
             try:
                 c = Coupon.objects.get(code=promo.get('code'))
                 c.used_count = (c.used_count or 0) + 1
                 c.save(update_fields=['used_count'])
+                coupon_obj = c
             except Coupon.DoesNotExist:
-                pass
+                coupon_obj = None
+
+        # skapa Order + OrderItems om användaren är inloggad och hade en cart
+        cart = request.session.get('cart', {})
+        if request.user.is_authenticated and cart:
+            subtotal = Decimal('0.00')
+
+            # skapa en tom order först
+            order = Order.objects.create(
+                user=request.user,
+                total=Decimal('0.00'),
+                coupon=coupon_obj,
+                discount_amount=Decimal('0.00'),
+            )
+
+            # skapa OrderItem för varje varukorgsrad
+            for key, item in cart.items():
+                # hoppa över gift certificates som inte har en Product-koppling
+                if str(key).startswith("gift:") or item.get("type") == "gift_certificate":
+                    try:
+                        amount = Decimal(item.get("amount", "0") or "0")
+                    except Exception:
+                        amount = Decimal('0.00')
+                    subtotal += amount
+                    continue
+
+                try:
+                    product = Product.objects.get(id=int(key))
+                except (ValueError, Product.DoesNotExist):
+                    continue
+
+                qty = int(item.get("quantity", 1))
+                price = Decimal(product.price or 0)
+                line_total = price * qty
+                subtotal += line_total
+
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=qty,
+                    price=price,
+                )
+
+            # låt modellen räkna rabatt + total
+            order.recalculate_total()
 
         # clear the cart
         if 'cart' in request.session:
@@ -259,6 +304,7 @@ def cart_view(request):
     })
 
 
+@login_required(login_url='account')
 @require_POST
 def create_checkout_session(request):
     """
@@ -486,24 +532,20 @@ def gift_certificates(request):
     return render(request, 'main/gift_certificates.html')
 
 
-
 # Purchase History View for Logged-In Users
-@login_required
+@login_required(login_url='account')
 def purchase_history(request):
-    # Get all orders placed by the current user
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')  # Assuming 'created_at' for order date
-
-    # Discount logic for logged-in users
-    discount = 0
-    if request.user.is_authenticated:
-        discount = 10  # Example: 10% discount for logged-in users
+    orders = (
+        Order.objects
+        .filter(user=request.user)
+        .order_by('-date')
+        .prefetch_related('items__product')
+    )
 
     return render(request, 'main/purchase_history.html', {
         'orders': orders,
-        'discount': discount,
     })
 
 
 def shipping(request):
     return render(request, 'main/shipping.html')
-
