@@ -118,30 +118,29 @@ def recipes(request):
 
 
 # --- Cart Views ---
-def add_to_cart(request):
+def add_to_cart(request, product_id):
     """
-    Only adds to cart and redirects back to the product list.
-    (No Stripe or totals logic here.)
+    Adds a product to the cart via link click and then redirects to the cart page.
     """
-    if request.method == "POST":
-        product_id = request.POST.get("product_id")
-        product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, id=product_id)
 
-        cart = request.session.get("cart", {})
-        product_id_str = str(product_id)
+    cart = request.session.get("cart", {})
+    product_id_str = str(product_id)
 
-        if product_id_str in cart:
-            cart[product_id_str]['quantity'] += 1
-        else:
-            cart[product_id_str] = {
-                "name": product.name,
-                "image_url": product.image_url,
-                "quantity": 1,
-            }
+    # Hämta befintlig rad eller skapa ny
+    item = cart.get(product_id_str, {
+        "name": product.name,
+        "image_url": product.image_url,
+        "quantity": 0,
+    })
+    item["quantity"] += 1
+    cart[product_id_str] = item
 
-        request.session["cart"] = cart
-        messages.success(request, f'"{product.name}" added to your cart.')
-    return redirect("product_list")
+    request.session["cart"] = cart
+    request.session.modified = True
+
+    messages.success(request, f'"{product.name}" was added to your cart 🛒')
+    return redirect("cart")
 
 
 def cart_view(request):

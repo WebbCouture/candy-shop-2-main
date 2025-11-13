@@ -34,16 +34,10 @@
             {{ settings.STRIPE_CURRENCY|default:"USD" }} {{ product.price|floatformat:2 }}
           </div>
 
-          <!-- Add to Cart Form -->
-          <form method="POST" action="{% url 'add_to_cart' %}">
-            {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ product.id }}">
-            <input type="hidden" name="product_name" value="{{ product.name }}">
-            <input type="hidden" name="product_image" value="{{ product.image_url }}">
-            <button type="submit" class="btn-primary">
-              Add to Cart
-            </button>
-          </form>
+          <!-- Add to Cart Button (link-version) -->
+          <a href="{% url 'add_to_cart' product.id %}" class="btn-primary">
+            Add to Cart
+          </a>
         </div>
       </article>
     {% endfor %}
