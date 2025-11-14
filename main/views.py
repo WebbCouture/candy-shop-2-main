@@ -168,6 +168,7 @@ def cart_view(request):
         cart = request.session.get('cart', {})
         if request.user.is_authenticated and cart:
             subtotal = Decimal('0.00')
+            gift_total = Decimal('0.00')  # NY: summa för gift certificates
 
             # skapa en tom order först
             order = Order.objects.create(
@@ -179,15 +180,17 @@ def cart_view(request):
 
             # skapa OrderItem för varje varukorgsrad
             for key, item in cart.items():
-                # hoppa över gift certificates som inte har en Product-koppling
+                # Gift certificates – lägg till i subtotal OCH gift_total
                 if str(key).startswith("gift:") or item.get("type") == "gift_certificate":
                     try:
                         amount = Decimal(item.get("amount", "0") or "0")
                     except Exception:
                         amount = Decimal('0.00')
                     subtotal += amount
+                    gift_total += amount
                     continue
 
+                # Vanliga produkter
                 try:
                     product = Product.objects.get(id=int(key))
                 except (ValueError, Product.DoesNotExist):
@@ -205,8 +208,13 @@ def cart_view(request):
                     price=price,
                 )
 
-            # låt modellen räkna rabatt + total
+            # låt modellen räkna rabatt + total (baserat på produkter + kupong)
             order.recalculate_total()
+
+            # Lägg på gift certificates ovanpå totala ordern
+            if gift_total > 0:
+                order.total = (order.total or Decimal('0.00')) + gift_total
+                order.save(update_fields=['total'])
 
         # clear the cart
         if 'cart' in request.session:
