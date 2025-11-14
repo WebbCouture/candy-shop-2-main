@@ -1078,3 +1078,8 @@ header {
 .products-search-message strong {
   color: #ff4d6d;
 }
+
+/* Fix: gör så overlay inte blockerar klick */
+.product-card::before {
+  pointer-events: none;
+}

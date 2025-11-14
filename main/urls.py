@@ -15,7 +15,7 @@ urlpatterns = [
     path('recipes/', views.recipes, name='recipes'), 
     
     # Cart-related URLs
-    path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+    path('add-to-cart/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.cart_view, name='cart'),
     path('create-checkout-session/', views.create_checkout_session, name='create_checkout_session'),
 

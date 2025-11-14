@@ -118,10 +118,13 @@ def recipes(request):
 
 
 # --- Cart Views ---
-def add_to_cart(request, product_id):
+@require_POST
+def add_to_cart(request):
     """
-    Adds a product to the cart via link click and then redirects to the cart page.
+    Adds a product to the cart via POST and then redirects to the cart page.
+    Expects a 'product_id' field in request.POST.
     """
+    product_id = request.POST.get("product_id")
     product = get_object_or_404(Product, id=product_id)
 
     cart = request.session.get("cart", {})
@@ -421,8 +424,6 @@ def logout_view(request):
     return redirect('account')
 
 
-
-# --- Account View (Login, Register, Dashboard) ---
 # --- Account View (Login, Register, Dashboard) ---
 def account(request):
     # If user is logged in → show dashboard

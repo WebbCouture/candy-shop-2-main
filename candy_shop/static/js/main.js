@@ -127,16 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </footer>
   `);
-
-  // ** NEW: Smooth scroll for homepage "Shop Now" button **
-  const shopNowBtn = document.querySelector('a.btn-primary');
-  if (shopNowBtn) {
-    shopNowBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const productsSection = document.querySelector('#products');
-      if (productsSection) {
-        productsSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  }
 });
+
+

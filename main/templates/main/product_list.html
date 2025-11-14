@@ -9,8 +9,7 @@
   {% if search_query %}
     {% if products|length == 0 %}
       <p class="products-search-message">
-        No products found for "<strong>{{ search_query }}</strong>".
-      </p>
+        No products found for "<strong>{{ search_query }}</strong>".</p>
     {% else %}
       <p class="products-search-message">
         Showing results for "<strong>{{ search_query }}</strong>":
@@ -34,10 +33,14 @@
             {{ settings.STRIPE_CURRENCY|default:"USD" }} {{ product.price|floatformat:2 }}
           </div>
 
-          <!-- Add to Cart Button (link-version) -->
-          <a href="{% url 'add_to_cart' product.id %}" class="btn-primary">
-            Add to Cart
-          </a>
+          <!-- ✅ Add to Cart: POST-form som faktiskt lägger i cart -->
+          <form method="POST" action="{% url 'add_to_cart' %}">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <button type="submit" class="btn-primary">
+              Add to Cart
+            </button>
+          </form>
         </div>
       </article>
     {% endfor %}
