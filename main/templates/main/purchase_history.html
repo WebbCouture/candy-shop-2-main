@@ -3,89 +3,60 @@
 {% block title %}Purchase History - Candy Shop{% endblock %}
 
 {% block content %}
-  <div class="purchase-history-page" style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 4rem;">
+  <div class="purchase-history-page" style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem;">
 
     <h1 style="text-align: center; color: #ff4d6d; font-weight: 700; margin-bottom: 2rem;">
       Your Purchase History
     </h1>
 
     {% if orders %}
-      <h2 style="font-size: 1.8rem; color: #444; margin-bottom: 1rem;">
-        Past Orders
-      </h2>
-
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.95rem;">
-        <thead>
-          <tr style="background-color: #ffe6ec; color: #7f1d30;">
-            <th style="text-align: left; padding: 0.6rem; border-bottom: 1px solid #ffd0da;">Order ID</th>
-            <th style="text-align: left; padding: 0.6rem; border-bottom: 1px solid #ffd0da;">Date</th>
-            <th style="text-align: left; padding: 0.6rem; border-bottom: 1px solid #ffd0da;">Items</th>
-            <th style="text-align: left; padding: 0.6rem; border-bottom: 1px solid #ffd0da;">Total</th>
-            <th style="text-align: left; padding: 0.6rem; border-bottom: 1px solid #ffd0da;">Discount</th>
-            <th style="text-align: left; padding: 0.6rem; border-bottom: 1px solid #ffd0da;">Coupon</th>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; background: #fff; box-shadow: 0 4px 15px rgba(255,77,109,0.15); border-radius: 16px; overflow: hidden;">
+        <thead style="background: #ffe0ea;">
+          <tr>
+            <th style="text-align: left; padding: 0.75rem 1rem;">Order #</th>
+            <th style="text-align: left; padding: 0.75rem 1rem;">Date</th>
+            <th style="text-align: left; padding: 0.75rem 1rem;">Items</th>
+            <th style="text-align: right; padding: 0.75rem 1rem;">Total (USD)</th>
           </tr>
         </thead>
         <tbody>
           {% for order in orders %}
-            <tr style="background-color: #fff;">
-              <!-- Order ID -->
-              <td style="padding: 0.6rem; border-bottom: 1px solid #f5c1d0;">
+            <tr style="border-top: 1px solid #f7c3d1;">
+              <!-- Order id -->
+              <td style="padding: 0.75rem 1rem; vertical-align: top;">
                 {{ order.id }}
               </td>
 
-              <!-- Date (Order.date används i din view: order_by('-date')) -->
-              <td style="padding: 0.6rem; border-bottom: 1px solid #f5c1d0;">
-                {{ order.date|date:"F j, Y H:i" }}
+              <!-- Order date -->
+              <td style="padding: 0.75rem 1rem; vertical-align: top; white-space: nowrap;">
+                {{ order.date|date:"Y-m-d H:i" }}
               </td>
 
-              <!-- Items: här visar vi produkter OCH gift certificates -->
-              <td style="padding: 0.6rem; border-bottom: 1px solid #f5c1d0;">
-                <ul style="list-style: none; padding-left: 0; margin: 0;">
+              <!-- Items (products AND gift certificates) -->
+              <td style="padding: 0.75rem 1rem; vertical-align: top;">
+                <ul style="list-style: none; padding: 0; margin: 0;">
                   {% for item in order.items.all %}
-                    <li style="margin-bottom: 0.2rem;">
+                    <li style="margin-bottom: 0.25rem;">
                       {% if item.product %}
-                        <strong>{{ item.product.name }}</strong>
+                        {{ item.quantity }} × {{ item.product.name }} — ${{ item.price }}
                       {% else %}
-                        <strong>Gift Certificate</strong>
+                        {{ item.quantity }} × Gift Certificate — ${{ item.price }}
                       {% endif %}
-                      × {{ item.quantity }}
-                      – ${{ item.price|floatformat:2 }}
                     </li>
                   {% empty %}
-                    <li><em>No items found for this order.</em></li>
+                    <li>No items for this order.</li>
                   {% endfor %}
                 </ul>
               </td>
 
-              <!-- Total (Order.total) -->
-              <td style="padding: 0.6rem; border-bottom: 1px solid #f5c1d0; font-weight: 600; color: #7f1d30;">
-                ${{ order.total|floatformat:2 }}
-              </td>
-
-              <!-- Discount amount (Order.discount_amount) -->
-              <td style="padding: 0.6rem; border-bottom: 1px solid #f5c1d0;">
-                {% if order.discount_amount and order.discount_amount > 0 %}
-                  <span style="color: green;">
-                    -${{ order.discount_amount|floatformat:2 }}
-                  </span>
-                {% else %}
-                  <span style="color: #999;">None</span>
-                {% endif %}
-              </td>
-
-              <!-- Coupon code (Order.coupon) -->
-              <td style="padding: 0.6rem; border-bottom: 1px solid #f5c1d0;">
-                {% if order.coupon %}
-                  {{ order.coupon.code }}
-                {% else %}
-                  <span style="color: #999;">–</span>
-                {% endif %}
+              <!-- Order total -->
+              <td style="padding: 0.75rem 1rem; text-align: right; vertical-align: top; font-weight: 700; color: #7f1d30;">
+                ${{ order.total }}
               </td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
-
     {% else %}
       <p style="text-align: center; color: #555;">
         You haven't placed any orders yet.
