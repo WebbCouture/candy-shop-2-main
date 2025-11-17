@@ -70,11 +70,71 @@ def add_to_cart(request):
 
 
 def cart_view(request):
-    # BETALNING KLAR → skicka direkt till account
+    # BETALNING KLAR – SPARA ORDER + TÖM KUNDVAGN
     if request.GET.get('success') == '1':
+        cart = request.session.get('cart', {})
+
+        if request.user.is_authenticated and cart:
+            order = Order.objects.create(
+                user=request.user,
+                total=Decimal('0.00'),
+            )
+
+            gift_total = Decimal('0.00')
+
+            for key, item in cart.items():
+                # PRESENTKORT
+                if str(key).startswith("gift:") or item.get("type") == "gift_certificate":
+                    amount = Decimal(item.get("amount", "0") or "0")
+                    recipient_name = item.get("recipient_name") or "Okänd mottagare"
+                    recipient_email = item.get("recipient_email") or "no@email"
+
+                    gift_cert = GiftCertificate.objects.create(
+                        recipient_name=recipient_name,
+                        recipient_email=recipient_email,
+                        amount=amount,
+                        message=item.get("message", ""),
+                        status="issued",
+                    )
+
+                    order.gift_amount = amount
+                    order.gift_recipient = f"{gift_cert.recipient_name} ({gift_cert.recipient_email})"
+                    order.gift_code = gift_cert.code
+                    order.save(update_fields=['gift_amount', 'gift_recipient', 'gift_code'])
+
+                    gift_total += amount
+                    continue
+
+                # VANLIGA PRODUKTER
+                try:
+                    product = Product.objects.get(id=int(key))
+                except (ValueError, Product.DoesNotExist):
+                    continue
+
+                qty = int(item.get("quantity", 1))
+                price = Decimal(product.price or 0)
+
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=qty,
+                    price=price,
+                )
+
+            order.recalculate_total()
+            if gift_total > 0:
+                order.total += gift_total
+            order.save()
+
+        # TÖM KUNDVAGNEN HELT
+        if 'cart' in request.session:
+            del request.session['cart']
+            request.session.modified = True
+
         messages.success(request, "Betalningen lyckades! Din order är sparad.")
         return redirect('account')
 
+    # AVBRUTEN BETALNING
     if request.GET.get('canceled') == '1':
         messages.warning(request, "Betalningen avbröts. Dina varor finns kvar i korgen.")
         return redirect('cart')
@@ -181,7 +241,7 @@ def create_checkout_session(request):
         session = stripe.checkout.Session.create(
             mode="payment",
             line_items=line_items,
-            success_url=request.build_absolute_uri("/account/"),   # Direkt till account!
+            success_url=request.build_absolute_uri("/account/"),
             cancel_url=request.build_absolute_uri("/cart/"),
         )
     except Exception as e:
