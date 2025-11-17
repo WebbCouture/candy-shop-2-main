@@ -22,17 +22,12 @@
         <tbody>
           {% for order in orders %}
             <tr style="border-top: 1px solid #f7c3d1;">
-              <!-- Order id -->
-              <td style="padding: 0.75rem 1rem; vertical-align: top;">
-                {{ order.id }}
-              </td>
-
-              <!-- Order date -->
+              <td style="padding: 0.75rem 1rem; vertical-align: top;">{{ order.id }}</td>
               <td style="padding: 0.75rem 1rem; vertical-align: top; white-space: nowrap;">
                 {{ order.date|date:"Y-m-d H:i" }}
               </td>
 
-              <!-- Items (products + gift certificate line om det finns) -->
+              <!-- Items + Presentkort med namn & kod -->
               <td style="padding: 0.75rem 1rem; vertical-align: top;">
                 <ul style="list-style: none; padding: 0; margin: 0;">
                   {% for item in order.items.all %}
@@ -47,7 +42,7 @@
                     <li>No items for this order.</li>
                   {% endfor %}
 
-                  {# Endast ändringen – snyggare presentkortsrad #}
+                  <!-- PRESENTKORT – NU MED NAMN OCH KOD -->
                   {% if order.gift_amount and order.gift_amount > 0 %}
                     <li style="margin: 0.75rem 0 0.35rem 0; 
                                padding: 0.75rem 0 0.35rem; 
@@ -56,12 +51,21 @@
                                color: #d4084c;">
                       Presentkort {{ order.gift_amount|floatformat:0 }} kr
                       <span style="float: right;">${{ order.gift_amount|floatformat:2 }}</span>
+                      {% if order.gift_recipient %}
+                        <br><small style="color: #666; font-weight: normal;">
+                          Till: {{ order.gift_recipient }}
+                        </small>
+                      {% endif %}
+                      {% if order.gift_code %}
+                        <br><small style="color: #666; font-weight: normal;">
+                          Kod: <strong>{{ order.gift_code }}</strong>
+                        </small>
+                      {% endif %}
                     </li>
                   {% endif %}
                 </ul>
               </td>
 
-              <!-- Order total -->
               <td style="padding: 0.75rem 1rem; text-align: right; vertical-align: top; font-weight: 700; color: #7f1d30;">
                 ${{ order.total|floatformat:2 }}
               </td>
