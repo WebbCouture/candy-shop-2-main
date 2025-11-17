@@ -32,26 +32,33 @@
                 {{ order.date|date:"Y-m-d H:i" }}
               </td>
 
-              <!-- Items (products AND gift certificates) -->
+              <!-- Items (products + gift certificate line om det finns) -->
               <td style="padding: 0.75rem 1rem; vertical-align: top;">
                 <ul style="list-style: none; padding: 0; margin: 0;">
                   {% for item in order.items.all %}
                     <li style="margin-bottom: 0.25rem;">
                       {% if item.product %}
-                        {{ item.quantity }} × {{ item.product.name }} — ${{ item.price }}
+                        {{ item.quantity }} × {{ item.product.name }} — ${{ item.price|floatformat:2 }}
                       {% else %}
-                        {{ item.quantity }} × Gift Certificate — ${{ item.price }}
+                        {{ item.quantity }} × Item — ${{ item.price|floatformat:2 }}
                       {% endif %}
                     </li>
                   {% empty %}
                     <li>No items for this order.</li>
                   {% endfor %}
+
+                  {# 🔹 Extra rad för presentkort som vi räknade ut i viewen #}
+                  {% if order.gift_amount and order.gift_amount > 0 %}
+                    <li style="margin-top: 0.25rem; font-weight: 600; color: #7f1d30;">
+                      Gift Certificate (included in total) — ${{ order.gift_amount|floatformat:2 }}
+                    </li>
+                  {% endif %}
                 </ul>
               </td>
 
               <!-- Order total -->
               <td style="padding: 0.75rem 1rem; text-align: right; vertical-align: top; font-weight: 700; color: #7f1d30;">
-                ${{ order.total }}
+                ${{ order.total|floatformat:2 }}
               </td>
             </tr>
           {% endfor %}
