@@ -19,10 +19,6 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 def to_cents(amount) -> int:
-    """
-    Convert a Decimal/str/float to integer minor units (cents/öre).
-    Example: Decimal('12.34') -> 1234
-    """
     d = Decimal(str(amount)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     return int((d * 100).to_integral_value())
 
@@ -41,10 +37,6 @@ def product_list(request):
 
 # --- Coupons & Promotions page ---
 def coupons(request):
-    """
-    Simple page where a user can submit a coupon code.
-    Stores a valid promo in session and redirects to the cart.
-    """
     if request.method == "POST":
         code = (request.POST.get("code") or "").strip().upper()
         if not code:
@@ -75,7 +67,6 @@ def coupons(request):
     return render(request, "main/coupons.html", {"current_promo": current})
 
 
-# Allow applying coupon directly from the cart page (cart.html form posts here)
 @require_POST
 def apply_coupon(request):
     code = (request.POST.get("promo_code") or "").strip().upper()
@@ -104,7 +95,6 @@ def apply_coupon(request):
     return redirect("cart")
 
 
-# --- NEW: Reviews, Blog, Videos ---
 def reviews(request):
     return render(request, 'main/reviews.html')
 
@@ -117,20 +107,14 @@ def recipes(request):
     return render(request, 'main/recipes.html')
 
 
-# --- Cart Views ---
 @require_POST
 def add_to_cart(request):
-    """
-    Adds a product to the cart via POST and then redirects to the cart page.
-    Expects a 'product_id' field in request.POST.
-    """
     product_id = request.POST.get("product_id")
     product = get_object_or_404(Product, id=product_id)
 
     cart = request.session.get("cart", {})
     product_id_str = str(product_id)
 
-    # Hämta befintlig rad eller skapa ny
     item = cart.get(product_id_str, {
         "name": product.name,
         "image_url": product.image_url,
@@ -142,19 +126,15 @@ def add_to_cart(request):
     request.session["cart"] = cart
     request.session.modified = True
 
-    messages.success(request, f'"{product.name}" was added to your cart 🛒')
+    messages.success(request, f'"{product.name}" was added to your cart')
     return redirect("cart")
 
 
 def cart_view(request):
-    """
-    Shows the cart; applies current promo; handles Stripe success/cancel flags.
-    """
-    # Handle Stripe return flags
+    # BETALNING KLAR – SPARA ORDER + PRESENTKORT
     if request.GET.get('success') == '1':
-        # record coupon use, if any + find Coupon object
+        promo_obj = None
         promo = request.session.pop('promo', None)
-        coupon_obj = None
         if promo:
             try:
                 c = Coupon.objects.get(code=promo.get('code'))
@@ -162,9 +142,11 @@ def cart_view(request):
                 c.save(update_fields=['used_count'])
                 coupon_obj = c
             except Coupon.DoesNotExist:
-                coupon_obj = None
+                pass
 
-                  # skapa en tom order först
+        cart = request.session.get('cart', {})
+
+        if request.user.is_authenticated and cart:
             order = Order.objects.create(
                 user=request.user,
                 total=Decimal('0.00'),
@@ -174,47 +156,30 @@ def cart_view(request):
 
             gift_total = Decimal('0.00')
 
-            # Loopa igenom kundvagnen – skapa OrderItems + hantera presentkort korrekt
             for key, item in cart.items():
-                # ====== PRESENTKORT ======
+                # PRESENTKORT
                 if str(key).startswith("gift:") or item.get("type") == "gift_certificate":
-                    try:
-                        amount = Decimal(item.get("amount") or "0")
-                    except Exception:
-                        amount = Decimal('0.00')
+                    amount = Decimal(item.get("amount", "0") or "0")
+                    recipient_name = item.get("recipient_name") or item.get("name", "Okänd").split(" for ")[-1].split(" ($")[0]
+                    recipient_email = item.get("recipient_email", "no@email")
 
-                    # Hämta namn & e-post från cart-item (du sparade det där när kunden fyllde i formuläret)
-                    recipient_name = item.get("recipient_name")
-                    recipient_email = item.get("recipient_email")
-                    if not recipient_name or not recipient_email:
-                        # Fallback – försök plocka ur namnet från "Gift Certificate for Anna Andersson ($50)"
-                        try:
-                            name_part = item.get("name", "").replace("Gift Certificate for ", "").split(" ($")[0]
-                            recipient_name = name_part
-                            recipient_email = "no-email@temp.com"
-                        except:
-                            recipient_name = "Okänd mottagare"
-                            recipient_email = "no-email@temp.com"
-
-                    # SKAPA RIKTIGT PRESENTKORT MED STATUS "ISSUED"
                     gift_cert = GiftCertificate.objects.create(
                         recipient_name=recipient_name,
                         recipient_email=recipient_email,
                         amount=amount,
                         message=item.get("message", ""),
-                        status="issued",           # ← Detta gör att det är "köpt"
+                        status="issued",
                     )
 
-                    # SPARA INFO PÅ ORDERN SÅ DET SYNNS I KÖPHISTORIKEN
                     order.gift_amount = amount
                     order.gift_recipient = f"{gift_cert.recipient_name} ({gift_cert.recipient_email})"
                     order.gift_code = gift_cert.code
                     order.save(update_fields=['gift_amount', 'gift_recipient', 'gift_code'])
 
                     gift_total += amount
-                    continue  # skippa OrderItem för presentkort
+                    continue
 
-                # ====== VANLIGA PRODUKTER ======
+                # VANLIGA PRODUKTER
                 try:
                     product = Product.objects.get(id=int(key))
                 except (ValueError, Product.DoesNotExist):
@@ -230,25 +195,24 @@ def cart_view(request):
                     price=price,
                 )
 
-            # Räkna om totalt (produkter + rabatt) och lägg på presentkort
             order.recalculate_total()
             if gift_total > 0:
                 order.total += gift_total
                 order.save(update_fields=['total'])
 
-            # Rensa kundvagnen
-            if 'cart' in request.session:
-                del request.session['cart']
-                request.session.modified = True
+        # TÖM KUNDVAGNEN
+        if 'cart' in request.session:
+            del request.session['cart']
+            request.session.modified = True
 
-        messages.success(request, "🎉 Payment successful! Your order is confirmed.")
+        messages.success(request, "Payment successful! Your order is confirmed.")
         return redirect('cart')
 
     if request.GET.get('canceled') == '1':
         messages.warning(request, "Payment canceled. Your items are still in the cart.")
         return redirect('cart')
 
-    # Normal cart rendering
+    # VANLIG KUNDVAGN
     cart = request.session.get('cart', {})
     public_key = getattr(settings, 'STRIPE_PUBLIC_KEY', '')
     items = []
@@ -256,13 +220,9 @@ def cart_view(request):
     currency = getattr(settings, 'STRIPE_CURRENCY', 'usd').upper()
 
     for key, item in cart.items():
-        # Gift certificates kept in session
         if str(key).startswith("gift:") or item.get("type") == "gift_certificate":
             qty = int(item.get("quantity", 1))
-            try:
-                unit_price = Decimal(item.get("amount", "0") or "0")
-            except Exception:
-                unit_price = Decimal('0.00')
+            unit_price = Decimal(item.get("amount", "0") or "0")
             line_total = unit_price * qty
             items.append({
                 "id": key,
@@ -275,7 +235,6 @@ def cart_view(request):
             })
             subtotal += line_total
         else:
-            # Regular product from DB
             try:
                 product = Product.objects.get(id=int(key))
             except (ValueError, Product.DoesNotExist):
@@ -294,24 +253,17 @@ def cart_view(request):
             })
             subtotal += line_total
 
-    # Promo handling (uses session "promo" if present)
     promo = request.session.get("promo")
     discount = Decimal('0.00')
-    shipping = Decimal('0.00')  # "FREESHIP" handled via promo type (kept simple)
+    shipping = Decimal('0.00')
 
     if promo:
         ptype = promo.get("type")
         pval = promo.get("value", 0)
         if ptype == "percent":
-            try:
-                discount = (subtotal * Decimal(pval) / Decimal('100')).quantize(Decimal('0.01'))
-            except Exception:
-                discount = Decimal('0.00')
+            discount = (subtotal * Decimal(pval) / Decimal('100')).quantize(Decimal('0.01'))
         elif ptype == "amount":
-            try:
-                discount = Decimal(str(pval))
-            except Exception:
-                discount = Decimal('0.00')
+            discount = Decimal(str(pval))
         elif ptype == "freeship":
             shipping = Decimal('0.00')
 
@@ -337,11 +289,6 @@ def cart_view(request):
 @login_required(login_url='account')
 @require_POST
 def create_checkout_session(request):
-    """
-    Creates a Stripe Checkout session for everything in the cart
-    and redirects the browser to Stripe (no JS needed).
-    NOTE: Quick win — we are not applying discounts at Stripe; total shown on site includes discount.
-    """
     cart = request.session.get('cart', {})
     if not cart:
         return redirect('cart')
@@ -350,12 +297,8 @@ def create_checkout_session(request):
     currency = getattr(settings, "STRIPE_CURRENCY", "usd")
 
     for key, item in cart.items():
-        # Gift certificates
         if str(key).startswith("gift:") or item.get("type") == "gift_certificate":
-            try:
-                amt_cents = to_cents(item.get("amount", "0"))
-            except Exception:
-                amt_cents = 0
+            amt_cents = to_cents(item.get("amount", "0"))
             if amt_cents <= 0:
                 continue
             line_items.append({
@@ -367,7 +310,6 @@ def create_checkout_session(request):
                 "quantity": 1,
             })
         else:
-            # Regular product
             try:
                 product = Product.objects.get(id=int(key))
             except (ValueError, Product.DoesNotExist):
@@ -375,10 +317,7 @@ def create_checkout_session(request):
 
             qty = int(item.get("quantity", 1))
             unit_price = getattr(product, "price", 0)
-            try:
-                unit_cents = to_cents(unit_price)
-            except Exception:
-                unit_cents = 0
+            unit_cents = to_cents(unit_price)
             if unit_cents <= 0 or qty <= 0:
                 continue
 
@@ -405,7 +344,6 @@ def create_checkout_session(request):
         messages.error(request, f"Payment error: {e}")
         return redirect('cart')
 
-    # Redirect the user to Stripe Checkout
     return redirect(session.url, code=303)
 
 
@@ -445,16 +383,13 @@ def cart_delete(request, item_id):
     return redirect('cart')
 
 
-# --- Custom Logout View ---
 def logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out successfully.")
     return redirect('account')
 
 
-# --- Account View (Login, Register, Dashboard) ---
 def account(request):
-    # If user is logged in → show dashboard
     if request.user.is_authenticated:
         orders = Order.objects.filter(user=request.user).prefetch_related('items__product')
         return render(request, 'registration/account.html', {
@@ -465,12 +400,7 @@ def account(request):
     login_form = AuthenticationForm()
     signup_form = RegistrationForm()
 
-    # Handle POST
     if request.method == 'POST':
-
-        # ------------------------
-        # LOGIN
-        # ------------------------
         if 'login' in request.POST:
             login_form = AuthenticationForm(request, data=request.POST)
             if login_form.is_valid():
@@ -479,7 +409,6 @@ def account(request):
                 messages.success(request, "Login successful!")
                 return redirect('account')
             else:
-                # No need to add messages.error – form shows the errors itself
                 return render(request, 'registration/account.html', {
                     'login_form': login_form,
                     'signup_form': RegistrationForm(),
@@ -487,9 +416,6 @@ def account(request):
                     'active_tab': 'login',
                 })
 
-        # ------------------------
-        # SIGNUP
-        # ------------------------
         elif 'signup' in request.POST:
             signup_form = RegistrationForm(request.POST)
             if signup_form.is_valid():
@@ -498,7 +424,6 @@ def account(request):
                 messages.success(request, "Registration successful! You are now logged in.")
                 return redirect('account')
             else:
-                # IMPORTANT: show signup tab with errors
                 return render(request, 'registration/account.html', {
                     'login_form': AuthenticationForm(),
                     'signup_form': signup_form,
@@ -506,7 +431,6 @@ def account(request):
                     'active_tab': 'signup',
                 })
 
-    # Initial GET
     return render(request, 'registration/account.html', {
         'login_form': login_form,
         'signup_form': signup_form,
@@ -515,7 +439,6 @@ def account(request):
     })
 
 
-# --- Gift Certificates Page ---
 def gift_certificates(request):
     TEST_CODES = {
         "12345": {"balance": "50.00", "expires": "2026-12-31"},
@@ -532,12 +455,9 @@ def gift_certificates(request):
 
             info = TEST_CODES.get(code)
             if info:
-                messages.success(
-                    request,
-                    f"✅ Code {code} is valid. Balance: ${info['balance']} — Expires: {info['expires']} (demo)"
-                )
+                messages.success(request, f"Code {code} is valid. Balance: ${info['balance']} — Expires: {info['expires']} (demo)")
             else:
-                messages.error(request, f"❌ Code {code} is invalid or not found (demo).")
+                messages.error(request, f"Code {code} is invalid or not found (demo).")
             return redirect('gift_certificates')
 
         name = (request.POST.get('name') or '').strip()
@@ -570,7 +490,6 @@ def gift_certificates(request):
         }
         request.session["cart"] = cart
 
-        # Also store in DB so it appears in admin (pending)
         GiftCertificate.objects.create(
             recipient_name=name,
             recipient_email=email,
@@ -585,7 +504,6 @@ def gift_certificates(request):
     return render(request, 'main/gift_certificates.html')
 
 
-# Purchase History View for Logged-In Users
 @login_required(login_url='account')
 def purchase_history(request):
     orders = (
