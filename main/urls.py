@@ -9,7 +9,6 @@ urlpatterns = [
     # Home, Products, About, Contact pages
     path('products/', views.product_list, name='product_list'),
     path('shipping/', views.shipping, name='shipping'),
-    path('coupons/', views.coupons, name='coupons'),
     path('reviews/', views.reviews, name='reviews'),
     path('blog/', views.blog, name='blog'),
     path('recipes/', views.recipes, name='recipes'), 
@@ -24,17 +23,14 @@ urlpatterns = [
     path('cart/decrease/<path:item_id>/', views.cart_decrease, name='cart_decrease'),
     path('cart/delete/<path:item_id>/', views.cart_delete, name='cart_delete'),
 
-    # Apply coupon (for the cart page form)
-    path('apply-coupon/', views.apply_coupon, name='apply_coupon'),
-
     # Accounts-related URL (Login + Registration combined page)
-    path('account/', views.account, name='account'),  # Changed from 'accounts/' to 'account/'
+    path('account/', views.account, name='account'),
 
     # Custom logout route
     path('logout/', views.logout_view, name='logout'),
 
     # Redirect any visit to /account/login/ to your combined /account/ page
-    path('account/login/', RedirectView.as_view(pattern_name='account', permanent=False)),  # Changed from 'accounts/login/'
+    path('account/login/', RedirectView.as_view(pattern_name='account', permanent=False)),
 
     # Gift Certificates page
     path('gift-certificates/', views.gift_certificates, name='gift_certificates'),
