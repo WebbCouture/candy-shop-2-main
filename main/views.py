@@ -164,13 +164,7 @@ def cart_view(request):
             except Coupon.DoesNotExist:
                 coupon_obj = None
 
-        # skapa Order + OrderItems om användaren är inloggad och hade en cart
-        cart = request.session.get('cart', {})
-        if request.user.is_authenticated and cart:
-            subtotal = Decimal('0.00')
-            gift_total = Decimal('0.00')  # NY: summa för gift certificates
-
-            # skapa en tom order först
+                  # skapa en tom order först
             order = Order.objects.create(
                 user=request.user,
                 total=Decimal('0.00'),
@@ -178,19 +172,49 @@ def cart_view(request):
                 discount_amount=Decimal('0.00'),
             )
 
-            # skapa OrderItem för varje varukorgsrad
+            gift_total = Decimal('0.00')
+
+            # Loopa igenom kundvagnen – skapa OrderItems + hantera presentkort korrekt
             for key, item in cart.items():
-                # Gift certificates – lägg till i subtotal OCH gift_total
+                # ====== PRESENTKORT ======
                 if str(key).startswith("gift:") or item.get("type") == "gift_certificate":
                     try:
-                        amount = Decimal(item.get("amount", "0") or "0")
+                        amount = Decimal(item.get("amount") or "0")
                     except Exception:
                         amount = Decimal('0.00')
-                    subtotal += amount
-                    gift_total += amount
-                    continue
 
-                # Vanliga produkter
+                    # Hämta namn & e-post från cart-item (du sparade det där när kunden fyllde i formuläret)
+                    recipient_name = item.get("recipient_name")
+                    recipient_email = item.get("recipient_email")
+                    if not recipient_name or not recipient_email:
+                        # Fallback – försök plocka ur namnet från "Gift Certificate for Anna Andersson ($50)"
+                        try:
+                            name_part = item.get("name", "").replace("Gift Certificate for ", "").split(" ($")[0]
+                            recipient_name = name_part
+                            recipient_email = "no-email@temp.com"
+                        except:
+                            recipient_name = "Okänd mottagare"
+                            recipient_email = "no-email@temp.com"
+
+                    # SKAPA RIKTIGT PRESENTKORT MED STATUS "ISSUED"
+                    gift_cert = GiftCertificate.objects.create(
+                        recipient_name=recipient_name,
+                        recipient_email=recipient_email,
+                        amount=amount,
+                        message=item.get("message", ""),
+                        status="issued",           # ← Detta gör att det är "köpt"
+                    )
+
+                    # SPARA INFO PÅ ORDERN SÅ DET SYNNS I KÖPHISTORIKEN
+                    order.gift_amount = amount
+                    order.gift_recipient = f"{gift_cert.recipient_name} ({gift_cert.recipient_email})"
+                    order.gift_code = gift_cert.code
+                    order.save(update_fields=['gift_amount', 'gift_recipient', 'gift_code'])
+
+                    gift_total += amount
+                    continue  # skippa OrderItem för presentkort
+
+                # ====== VANLIGA PRODUKTER ======
                 try:
                     product = Product.objects.get(id=int(key))
                 except (ValueError, Product.DoesNotExist):
@@ -198,8 +222,6 @@ def cart_view(request):
 
                 qty = int(item.get("quantity", 1))
                 price = Decimal(product.price or 0)
-                line_total = price * qty
-                subtotal += line_total
 
                 OrderItem.objects.create(
                     order=order,
@@ -208,18 +230,16 @@ def cart_view(request):
                     price=price,
                 )
 
-            # låt modellen räkna rabatt + total (baserat på produkter + kupong)
+            # Räkna om totalt (produkter + rabatt) och lägg på presentkort
             order.recalculate_total()
-
-            # Lägg på gift certificates ovanpå totala ordern
             if gift_total > 0:
-                order.total = (order.total or Decimal('0.00')) + gift_total
+                order.total += gift_total
                 order.save(update_fields=['total'])
 
-        # clear the cart
-        if 'cart' in request.session:
-            del request.session['cart']
-            request.session.modified = True
+            # Rensa kundvagnen
+            if 'cart' in request.session:
+                del request.session['cart']
+                request.session.modified = True
 
         messages.success(request, "🎉 Payment successful! Your order is confirmed.")
         return redirect('cart')

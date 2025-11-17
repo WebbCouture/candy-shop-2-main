@@ -43,6 +43,9 @@ class Order(models.Model):
     total = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     coupon = models.ForeignKey("Coupon", null=True, blank=True, on_delete=models.SET_NULL, related_name="orders")
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    gift_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    gift_recipient = models.CharField(max_length=200, blank=True, default='')
+    gift_code = models.CharField(max_length=50, blank=True, default='')
 
     class Meta:
         ordering = ['-date']

@@ -47,10 +47,15 @@
                     <li>No items for this order.</li>
                   {% endfor %}
 
-                  {# 🔹 Extra rad för presentkort som vi räknade ut i viewen #}
+                  {# Endast ändringen – snyggare presentkortsrad #}
                   {% if order.gift_amount and order.gift_amount > 0 %}
-                    <li style="margin-top: 0.25rem; font-weight: 600; color: #7f1d30;">
-                      Gift Certificate (included in total) — ${{ order.gift_amount|floatformat:2 }}
+                    <li style="margin: 0.75rem 0 0.35rem 0; 
+                               padding: 0.75rem 0 0.35rem; 
+                               border-top: 2px dashed #ff4d6d; 
+                               font-weight: 700; 
+                               color: #d4084c;">
+                      Presentkort {{ order.gift_amount|floatformat:0 }} kr
+                      <span style="float: right;">${{ order.gift_amount|floatformat:2 }}</span>
                     </li>
                   {% endif %}
                 </ul>
